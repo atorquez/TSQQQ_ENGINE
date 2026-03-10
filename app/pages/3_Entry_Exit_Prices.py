@@ -32,6 +32,11 @@ df = load_data(ticker)
 # ---------------------------------------------------------
 recent = df["Close"].tail(window)
 
+# Safety check
+if recent.empty or len(recent) < 5:
+    st.error("Not enough recent price data to compute entry/exit levels. Data returned from yfinance was empty.")
+    st.stop()
+
 entry_price = float(np.percentile(recent, entry_percentile))
 exit_price = float(np.percentile(recent, exit_percentile))
 
