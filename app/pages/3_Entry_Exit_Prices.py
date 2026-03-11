@@ -3,6 +3,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import time
+import altair as alt
 
 st.title("Entry / Exit Price Engine")
 st.write("Determine ideal entry and exit prices based on recent price ranges.")
@@ -40,6 +41,12 @@ def load_data(ticker):
     return safe_fetch(ticker)
 
 df = load_data(ticker)
+
+# ---------------------------------------------------------
+# Convert index to clean YYYY-MM-DD
+# ---------------------------------------------------------
+if not df.empty:
+    df.index = df.index.date
 
 # ---------------------------------------------------------
 # Debug info (helps diagnose Cloud issues)
@@ -86,7 +93,7 @@ else:
 # ---------------------------------------------------------
 # Signal logic
 # ---------------------------------------------------------
-signal = "HOLD"
+signal = "H HOLD"
 
 if price_now <= entry_price and momentum == "UP":
     signal = "BUY"
@@ -108,8 +115,27 @@ st.divider()
 st.subheader("Recent Prices")
 st.dataframe(df.tail(10))
 
+# ---------------------------------------------------------
+# Price Chart (Altair with visible date axis)
+# ---------------------------------------------------------
+import altair as alt
+
 st.subheader("Price Chart")
-st.line_chart(df["Close"])
+
+df_chart = df.reset_index().rename(columns={"index": "Date"})
+
+chart = (
+    alt.Chart(df_chart)
+    .mark_line()
+    .encode(
+        x=alt.X("Date:T", title="Date"),
+        y=alt.Y("Close:Q", title="Price"),
+        tooltip=["Date:T", "Close:Q"]
+    )
+    .properties(height=300)
+)
+
+st.altair_chart(chart, use_container_width=True)
 
 # ---------------------------------------------------------
 # Explanation

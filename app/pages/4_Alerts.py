@@ -52,6 +52,19 @@ def load_data(ticker):
     return safe_fetch(ticker)
 
 # ---------------------------------------------------------
+# Load data for TQQQ and SQQQ
+# ---------------------------------------------------------
+tqqq = load_data("TQQQ")
+sqqq = load_data("SQQQ")
+
+# Convert index to clean YYYY-MM-DD
+if not tqqq.empty:
+    tqqq.index = tqqq.index.date
+
+if not sqqq.empty:
+    sqqq.index = sqqq.index.date
+
+# ---------------------------------------------------------
 # Compute entry/exit safely
 # ---------------------------------------------------------
 def compute_levels(df, window, entry_p, exit_p):
